@@ -2,7 +2,15 @@ const canvas = document.getElementById("board");
 const context = canvas.getContext("2d");
 
 // game configuration
+let timeStop = false;
 let speed = 4;
+class wasPosition {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+let wasPos= [];
 // snake configuration
 class snakePart {
   constructor(x, y) {
@@ -10,6 +18,7 @@ class snakePart {
     this.y = y;
   }
 }
+const slider = document.getElementById('ranger');
 const snakeParts = [];
 let tailLength = 5;
 let tileCount = 20;
@@ -64,12 +73,16 @@ function drawBoard(w, h, canvas, context, spacing) {
 }
 
 // game loop
+function startLoop() {
+
+}
 function drawGame() {
   changeSnakePosition();
   let result = isGameOver();
   if ( result == true ) {
       return;
   }
+  // bitesTheDust();
   clearScreen();
   // drawBoard(960, 600, canvas, context, 20);
 
@@ -77,7 +90,11 @@ function drawGame() {
   checkAppleCollision();
   drawSnake();
   drawScore();
-  setTimeout(drawGame, 1000 / speed);
+  console.log(slider.value);
+  let handler = setTimeout(drawGame, 1000 / speed);
+  if( timeStop == true ) {
+    clearInterval(handler);
+  }
 }
 
 // GAME FUNCTION
@@ -116,6 +133,23 @@ if (gameOver == true) {
 }
 
   return gameOver;
+}
+
+function bitesTheDust() {
+  if( wasPos.length < 20 ) {
+  wasPos.push(new wasPosition(headX, headY));
+  }
+  if( wasPos.length == 20 ) {
+    wasPos.shift();
+  }
+  // console.log(wasPos);
+  for( let i = 0; i < slider.value ; i++ ) {
+    if(slider.value === 5) {
+    headX = wasPos[i]["x"];
+    headY = wasPos[i]["y"];
+  }
+  }
+  
 }
 
 function drawScore() {
@@ -205,11 +239,15 @@ function drawApple() {
 }
 
 // Key event listener
+
 document.body.addEventListener("keydown", keyDown);
 function keyDown(event) {
   // Down
   if (event.keyCode == 38 || event.keyCode == 87) {
     if (yVelocity == 1) {
+      return;
+    } else if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.")
       return;
     }
     yVelocity = -1;
@@ -219,6 +257,9 @@ function keyDown(event) {
   if (event.keyCode == 40 || event.keyCode == 83) {
     if (yVelocity == -1) {
       return;
+    } else if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.")
+      return;
     }
     yVelocity = 1;
     xVelocity = 0;
@@ -226,6 +267,9 @@ function keyDown(event) {
   // Left
   if (event.keyCode == 37 || event.keyCode == 65) {
     if (xVelocity == 1) {
+      return;
+    } else if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.")
       return;
     }
     yVelocity = 0;
@@ -235,9 +279,24 @@ function keyDown(event) {
   if (event.keyCode == 39 || event.keyCode == 68) {
     if (xVelocity == -1) {
       return;
+    } else if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.")
+      return;
     }
     yVelocity = 0;
     xVelocity = 1;
+  }
+  if (event.keyCode == 84) {
+    timeStop = true;
+  }
+  if( event.keyCode == 89) {
+    if( timeStop == true ) {
+      timeStop = false;
+      drawGame();
+    } else {
+      console.log("Time is running")
+      return
+    }
   }
 }
 xVelocity = 1;
