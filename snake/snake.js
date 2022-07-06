@@ -18,7 +18,7 @@ let headX = 23;
 let headY = 14;
 let xVelocity = 0;
 let yVelocity = 0;
-/ Apples
+// Apples
 class appleCount {
   constructor(x, y) {
     this.x = x;
