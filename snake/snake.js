@@ -84,6 +84,7 @@ function drawGame() {
   }
   // bitesTheDust();
   clearScreen();
+  timeTracker();
   // drawBoard(960, 600, canvas, context, 20);
 
   drawApple();
@@ -93,7 +94,7 @@ function drawGame() {
   console.log(slider.value);
   let handler = setTimeout(drawGame, 1000 / speed);
   if( timeStop == true ) {
-    clearInterval(handler);
+    clearTimeout(handler);
   }
 }
 
@@ -135,19 +136,31 @@ if (gameOver == true) {
   return gameOver;
 }
 
-function bitesTheDust() {
+// TIME FUNCTION
+setInterval(() => {
+  bitesTheDust();
+}, 1000 / speed);
+
+function timeTracker() {
   if( wasPos.length < 20 ) {
   wasPos.push(new wasPosition(headX, headY));
   }
   if( wasPos.length == 20 ) {
     wasPos.shift();
   }
+}
+
+function bitesTheDust() {
   // console.log(wasPos);
-  for( let i = 0; i < slider.value ; i++ ) {
-    if(slider.value === 5) {
-    headX = wasPos[i]["x"];
-    headY = wasPos[i]["y"];
-  }
+  // value 5 is selecting 1 second to roll back
+  // so move the head of the snake to where it was 1 second ago
+  // it's important to note that every second that has passed equals to
+  // 4 travelled grids. Currently this function only moves it to the previous
+  // grid instead of 4 grids.
+  if(slider.value == 5) {
+    headX = wasPos.at(-2)["x"];
+    headY = wasPos.at(-2)["y"];
+    return
   }
   
 }
@@ -214,6 +227,7 @@ function createApple() {
 setInterval(() => {
   createApple();
 }, 3000);
+
 function drawApple() {
   // Check if the apple is going to be drawn over the snake body
   for (let i = 0; i < snakeParts.length; i++) {
@@ -235,6 +249,19 @@ function drawApple() {
       tileSize,
       tileSize
     );
+  }
+}
+
+// HTML FUNCTION
+function toggleSlider() {
+  let slideRange = document.getElementById('rangeSlider');
+  if ( slideRange.style.display === "none" ) {
+    slideRange.style.display = "block";
+    timeStop = true;
+  } else if (slideRange.style.display === 'block') {
+    slideRange.style.display = "none";
+    timeStop = false;
+    drawGame();
   }
 }
 

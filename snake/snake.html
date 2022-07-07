@@ -10,11 +10,12 @@
 <body>
     <div>
         <h1>OrayJS</h1>
+        <div id="rangeSlider" style="display:none;">
+        <input type="range" min="1" max="6" value="6" id="ranger">
+    </div>
+    <button onclick="toggleSlider()">Rewind</button>
         <p id="score">Score</p>
         <canvas id="board" height="600" width="960"></canvas>
-    </div>
-    <div>
-        <input type="range" min="1" max="6" value="6" id="ranger">
     </div>
 
     <script src="snake.js"></script>
