@@ -8,14 +8,48 @@
     <link rel="stylesheet" href="look.css">
 </head>
 <body>
-    <div>
-        <h1>OrayJS</h1>
-        <div id="rangeSlider" style="display:none;">
+    <main class="instructionBoard" id="instructor">
+        <div class="header">
+            <header>
+                <img src="../images/snake_icon.png" alt="">
+                
+                <h1>PHYTONS</h1>
+            </header>
+        </div>
+        <div class="instructionBody">
+            <h1>Instructions</h1>
+            <ol>
+                <li>Input your username to play the game.</li>
+                <li>Click the 'play' button.</li>
+                <li>Use your arrows keys or 'WASD' keys to move around.</li>
+                <li>Eat apples to grow and increase score.</li>
+                <li>Avoid colliding with your own tail.</li>
+                <li>To rewind, click the 'Rewind' button and adjust the slider to turn back in 
+                    time within 5 seconds.</li>
+            </ol>
+        </div>
+        <div class="usernamePlay">
+            <form action="">
+                <input type="text" id="inputField" placeholder="Insert your username.">
+                <button type="button"id="playBtn" disabled>Play</button>
+            </form>
+        </div>
+    </main>
+    <div id="gameBoard" display="none">
+        <header>
+            <img src="../images/snake_icon.png" alt="">
+            <h1>PHYTONS</h1>
+        </header>
+
+    <div class="info" id="info">
+        <p id="score">Score</p>
+        <p id="timer">Time : 00:00</p>
+    </div>
+        <canvas id="board" height="600" width="960"></canvas>
+    <!-- <div id="rangeSlider" style="display:none;">
         <input type="range" min="1" max="6" value="6" id="ranger">
     </div>
-    <button onclick="toggleSlider()">Rewind</button>
-        <p id="score">Score</p>
-        <canvas id="board" height="600" width="960"></canvas>
+    <button onclick="toggleSlider()">Rewind</button> -->
     </div>
 
     <script src="snake.js"></script>

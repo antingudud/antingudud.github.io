@@ -1,9 +1,12 @@
 const canvas = document.getElementById("board");
 const context = canvas.getContext("2d");
+let inputField = document.getElementById('inputField');
+let playBtn = document.getElementById('playBtn');
+let slideRange = document.getElementById('rangeSlider');
 
 // game configuration
 let timeStop = false;
-let speed = 4;
+let speed = 7;
 class wasPosition {
   constructor(x, y) {
     this.x = x;
@@ -27,6 +30,9 @@ let headX = 23;
 let headY = 14;
 let xVelocity = 0;
 let yVelocity = 0;
+let prevXVelocity = xVelocity;
+let prevYVelocity = yVelocity;
+let gameOver = false;
 // Apples
 class appleCount {
   constructor(x, y) {
@@ -50,26 +56,25 @@ let apples = [
       
 ];
 // game function
-let score = 0;
+let score = 6;
 
+// Draws the board with checkered pattern
 function drawBoard(w, h, canvas, context, spacing) {
   canvas.heigth = h;
   canvas.width = w;
+  
+  let squareCount = (w / spacing) * (h / spacing);
+  // context.strokeStyle = "red";
+  // context.lineWidth = 1;
 
-  context.beginPath();
-
-  context.strokeStyle = "red";
-  context.lineWidth = 1;
-
-  for (let x = 0; x <= w; x += spacing) {
-    context.moveTo(x, 0);
-    context.lineTo(x, h);
-    for (let y = 0; y <= h; y += spacing) {
-      context.moveTo(0, y);
-      context.lineTo(w, y);
+  for(let i = 0 ; i < 30 ; i++) {
+    for( let j = 0 ; j < 48 ; j++ ) {
+      context.beginPath();
+      context.fillStyle = ["#60b345ff", "#92cd7eff"][(i + j) % 2];
+      context.fillRect(j * tileCount, i * tileCount, tileSize, tileSize);
+      context.closePath();
     }
   }
-  context.stroke();
 }
 
 // game loop
@@ -77,6 +82,28 @@ function startLoop() {
 
 }
 function drawGame() {
+  // Prevent moving in the opposite direction
+
+  // Was moving right but try to move left
+  if(prevXVelocity === 1 && xVelocity === -1) {
+    xVelocity = prevXVelocity;
+  }
+  // Was moving left but try to move right
+  if(prevXVelocity === -1 && xVelocity === 1) {
+    xVelocity = prevXVelocity;
+  }
+  // Was moving down but try to move up
+  if(prevYVelocity === 1 && yVelocity === -1) {
+    yVelocity = prevYVelocity;
+  }
+  // Was moving up but try to move down
+  if(prevYVelocity === -1 && yVelocity === 1) {
+    yVelocity = prevYVelocity;
+  }
+
+  prevXVelocity = xVelocity;
+  prevYVelocity = yVelocity;
+
   changeSnakePosition();
   let result = isGameOver();
   if ( result == true ) {
@@ -85,13 +112,12 @@ function drawGame() {
   // bitesTheDust();
   clearScreen();
   timeTracker();
-  // drawBoard(960, 600, canvas, context, 20);
+  drawBoard(canvas.clientWidth, canvas.clientHeight, canvas, context, 20);
 
   drawApple();
   checkAppleCollision();
   drawSnake();
   drawScore();
-  console.log(slider.value);
   let handler = setTimeout(drawGame, 1000 / speed);
   if( timeStop == true ) {
     clearTimeout(handler);
@@ -100,7 +126,6 @@ function drawGame() {
 
 // GAME FUNCTION
 function isGameOver() {
-    let gameOver = false;
 
     if ( yVelocity === 0 && xVelocity === 0 ) {
         return false;
@@ -124,22 +149,26 @@ function isGameOver() {
   }
 }
 if (gameOver == true) {
-    const presentDiv = document.querySelector('div');
     const newDiv = document.createElement('div');
     const newH1 = document.createElement('h1');
+    const newP = document.createElement('p');
     const loseText = document.createTextNode("GAME OVER");
+    const scoreTally = document.createTextNode("Score : " + score);
     newDiv.appendChild(newH1);
+    newDiv.appendChild(newP);
     newH1.appendChild(loseText);
-    presentDiv.appendChild(newDiv);
+    newP.appendChild(scoreTally);
+    newDiv.classList.add('gameOverInfo');
+    gameBoard.insertBefore(newDiv, canvas);
 }
 
   return gameOver;
 }
 
 // TIME FUNCTION
-setInterval(() => {
-  bitesTheDust();
-}, 1000 / speed);
+// setInterval(() => {
+//   bitesTheDust();
+// }, 1000 / speed);
 
 function timeTracker() {
   if( wasPos.length < 20 ) {
@@ -150,21 +179,46 @@ function timeTracker() {
   }
 }
 
-function bitesTheDust() {
-  // console.log(wasPos);
-  // value 5 is selecting 1 second to roll back
-  // so move the head of the snake to where it was 1 second ago
-  // it's important to note that every second that has passed equals to
-  // 4 travelled grids. Currently this function only moves it to the previous
-  // grid instead of 4 grids.
-  if(slider.value == 5) {
-    headX = wasPos.at(-2)["x"];
-    headY = wasPos.at(-2)["y"];
-    return
-  }
+// function bitesTheDust() {
+//   // console.log(wasPos);
+//   // value 5 is selecting 1 second to roll back
+//   // so move the head of the snake to where it was 1 second ago
+//   // it's important to note that every second that has passed equals to
+//   // 4 travelled grids. Currently this function only moves it to the previous
+//   // grid instead of 4 grids.
+//   if(slider.value == 5) {
+//     headX = wasPos.at(-2)["x"];
+//     headY = wasPos.at(-2)["y"];
+//     return
+//   }
   
-}
+// }
 
+function Timer() {
+  let timerStart = Date.now();
+  let minuteCount = 0;
+  let timerElement = document.getElementById('timer');
+
+  setInterval(() => {
+    timerDiff = Date.now() - timerStart;
+    timePassed = Math.floor( timerDiff / 1000 );
+    if( gameOver == false ) {
+
+   
+    if( timePassed < 60) {
+  timerElement.innerText = "Time : " + minuteCount + ":" + timePassed;
+      if (timePassed == 60 ) {
+        timerStart = Date.now();
+        timerElement.innerText = "Time : " + minuteCount + ":" + timePassed;
+      }
+    } else {
+      timerStart = Date.now();
+      minuteCount++;
+    }
+  }
+    
+  }, 1000);
+}
 function drawScore() {
   const textInsertP = document.getElementById("score");
   textInsertP.innerText = "Score : " + score;
@@ -172,8 +226,10 @@ function drawScore() {
 
 // SNAKE
 function drawSnake() {
-  context.fillStyle = "orange";
   for (let i = 0; i < snakeParts.length; i++) {
+    for(let j = 0; j < snakeParts.length; j++) {
+      context.fillStyle = ["#5aa02c", "#447821"][(i + j) % 2];
+    }
     let part = snakeParts[i];
     context.fillRect(
       part.x * tileCount,
@@ -187,7 +243,7 @@ function drawSnake() {
   if (snakeParts.length > tailLength) {
     snakeParts.shift(); // Remove the farthest item from the snake parts if have more than our tail size
   }
-  context.fillStyle = "black";
+  context.fillStyle = "#2d5016";
   context.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize);
 }
 function changeSnakePosition() {
@@ -224,9 +280,11 @@ function createApple() {
     );
   }
 }
+function startApple() {
 setInterval(() => {
   createApple();
 }, 3000);
+}
 
 function drawApple() {
   // Check if the apple is going to be drawn over the snake body
@@ -253,28 +311,27 @@ function drawApple() {
 }
 
 // HTML FUNCTION
-function toggleSlider() {
-  let slideRange = document.getElementById('rangeSlider');
-  if ( slideRange.style.display === "none" ) {
-    slideRange.style.display = "block";
-    timeStop = true;
-  } else if (slideRange.style.display === 'block') {
-    slideRange.style.display = "none";
-    timeStop = false;
-    drawGame();
-  }
-}
+// function toggleSlider() {
+//   if ( slideRange.style.display === "none" ) {
+//     slideRange.style.display = "block";
+//     timeStop = true;
+//   } else if (slideRange.style.display === 'block') {
+//     slideRange.style.display = "none";
+//     timeStop = false;
+//     if( gameOver == true ) {
+//       return;
+//     }
+//     drawGame();
+//   }
+// }
 
 // Key event listener
 
-document.body.addEventListener("keydown", keyDown);
 function keyDown(event) {
   // Down
   if (event.keyCode == 38 || event.keyCode == 87) {
-    if (yVelocity == 1) {
-      return;
-    } else if ( timeStop == true ) {
-      console.log("Time is stopped, you can't move.")
+     if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.");
       return;
     }
     yVelocity = -1;
@@ -282,10 +339,8 @@ function keyDown(event) {
   }
   // Down
   if (event.keyCode == 40 || event.keyCode == 83) {
-    if (yVelocity == -1) {
-      return;
-    } else if ( timeStop == true ) {
-      console.log("Time is stopped, you can't move.")
+     if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.");
       return;
     }
     yVelocity = 1;
@@ -293,10 +348,8 @@ function keyDown(event) {
   }
   // Left
   if (event.keyCode == 37 || event.keyCode == 65) {
-    if (xVelocity == 1) {
-      return;
-    } else if ( timeStop == true ) {
-      console.log("Time is stopped, you can't move.")
+     if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.");
       return;
     }
     yVelocity = 0;
@@ -304,10 +357,8 @@ function keyDown(event) {
   }
   // Right
   if (event.keyCode == 39 || event.keyCode == 68) {
-    if (xVelocity == -1) {
-      return;
-    } else if ( timeStop == true ) {
-      console.log("Time is stopped, you can't move.")
+     if ( timeStop == true ) {
+      console.log("Time is stopped, you can't move.");
       return;
     }
     yVelocity = 0;
@@ -326,5 +377,37 @@ function keyDown(event) {
     }
   }
 }
+// move east after game start
 xVelocity = 1;
-drawGame();
+function startMenu() {
+  let gameBoard = document.getElementById('gameBoard');
+
+  inputField.addEventListener('input', function(e) {
+  if( e.value == '' ) 
+    playBtn.setAttribute('disabled', true);
+   else if (e != '' ) 
+    playBtn.removeAttribute('disabled');
+  
+  })
+  gameBoard.style.display = "none";
+}
+
+inputField.addEventListener('input', function(e){
+  if( e.target.value == '' )
+  playBtn.setAttribute('disabled', true);
+  else
+  playBtn.removeAttribute('disabled');
+})
+
+window.addEventListener('load', function(){
+  gameBoard.style.display = 'none';
+});
+playBtn.addEventListener('click', function(){
+  let instructor = document.getElementById('instructor');
+  instructor.style.display = 'none';
+  gameBoard.style.display = 'block';
+  drawGame();
+  document.body.addEventListener("keydown", keyDown);
+  startApple();
+  Timer();
+})
